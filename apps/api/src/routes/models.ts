@@ -12,10 +12,12 @@ import {
   listPiCatalog,
   ModelSignInError,
   oauthCredentialEmail,
+  parseModelSecret,
   prepareStoredModelAuth,
   probeCatalogProviderModels,
   probeOpenAiCompatibleModels,
   providerCatalogCache,
+  readDeepSeekBalance,
   selectDefaultCredentialId,
   serializeModelSecret,
   storedOpenAiCompatibleProbeHeaders,
@@ -39,6 +41,7 @@ import {
   deleteUnreferencedCredentialSecret,
   deploymentModelChangesScope,
   findModelCredential,
+  findNewestUserModelCredential,
   getModelRole,
   modelCredentialProviderFilter,
   modelRoleTarget,
@@ -170,6 +173,28 @@ export function modelsRoutes(ctx: RouterContext) {
           );
         } catch (error) {
           throw secretStoreOutage(error);
+        }
+      }),
+      deepseekBalance: authed.models.deepseekBalance.handler(async ({ context }) => {
+        const credential = await findNewestUserModelCredential(
+          deps.prisma,
+          context.actor.userId,
+          "deepseek",
+        );
+        if (!credential) return null;
+        const secret = await deps.prisma.secret.findFirst({
+          where: { id: credential.secretId, userId: context.actor.userId, spaceId: null },
+          select: { id: true, ciphertext: true },
+        });
+        if (!secret?.ciphertext) return null;
+        try {
+          const parsed = parseModelSecret(await deps.secrets.load(secret.ciphertext, secret.id));
+          if (parsed.kind !== "api_key" || !parsed.key) return null;
+          return await readDeepSeekBalance(parsed.key, deps.modelConnectionFetch ?? fetch);
+        } catch {
+          // A balance readout degrades to nothing: an unreadable secret, a refused key, or a
+          // network failure must not fail the sidebar.
+          return null;
         }
       }),
       forRole: authed.models.forRole.handler(async ({ context, input }) =>
