@@ -132,6 +132,7 @@ export { hostedModelCreditObserver } from "./models/credits/model-credit-observe
 export * from "./models/credits/model-credit-reconciler.js";
 export * from "./models/deployment-model.js";
 export { dataRetentionForConnect } from "./models/endpoints/data-retention.js";
+export * from "./models/endpoints/deepseek-balance.js";
 export * from "./models/endpoints/openai-compatible-url.js";
 export * from "./models/endpoints/openrouter-usage.js";
 export * from "./models/model-connect.js";

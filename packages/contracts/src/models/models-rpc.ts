@@ -57,6 +57,14 @@ export const modelsRpc = {
       .output(ModelRoleViewSchema),
     list: oc.output(z.array(ModelCatalogEntrySchema)),
     credentials: oc.output(z.array(ModelCredentialSchema)),
+    deepseekBalance: oc.output(
+      z
+        .object({
+          currency: z.string(),
+          total: z.string(),
+        })
+        .nullable(),
+    ),
     backups: oc.output(z.array(ModelRoleChoiceSchema)),
     setBackups: oc
       .input(modelChoiceListSchema(ModelRoleChoiceSchema))

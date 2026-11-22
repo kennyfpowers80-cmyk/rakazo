@@ -8,6 +8,7 @@ import { desktopBridge } from "../../../lib/platform/desktop";
 import { useAppRail } from "../app-rail";
 import { BotCreatePicker } from "../bots/bot-picker";
 import type { Panel } from "../right-panel-state";
+import { DeepSeekBalance } from "./deepseek-balance";
 
 // A size class, since the Button sizes any svg without one to 16px.
 const ICON = "size-4.5";
@@ -84,6 +85,7 @@ export function SidebarHeader({
       </div>
       {/* Fits beside the macOS window controls at the narrowest sidebar width. */}
       <div className={`relative flex items-center ${mini ? "flex-col gap-1" : "gap-0.5"}`}>
+        {!mini ? <DeepSeekBalance /> : null}
         {onSearch && !mini ? (
           <IconTooltip label={t`Search`} side={labelSide}>
             <Button
